@@ -1,10 +1,11 @@
 const Event = require("../../models/event");
 const Booking = require("../../models/booking");
 
-const { transformBooking, transformEvent } = require("./merge");
+const { transformBooking, transformEvent, authenticate } = require("./merge");
 
 module.exports = {
-  bookings: async () => {
+  bookings: async (args, req) => {
+    authenticate(req);
     try {
       const bookings = await Booking.find();
       return bookings.map(booking => {
@@ -15,14 +16,15 @@ module.exports = {
     }
   },
 
-  bookEvent: async args => {
+  bookEvent: async ({ eventId }, req) => {
+    authenticate(req);
     try {
-      const fetchedEvent = await Event.findOne({ _id: args.eventId });
+      const fetchedEvent = await Event.findOne({ _id: eventId });
       if (!fetchedEvent) {
         throw new Error("Event not found!");
       }
       const booking = new Booking({
-        user: "5d67d7675b481280c82a1a81",
+        user: req.userId,
         event: fetchedEvent
       });
       const result = await booking.save();
@@ -32,11 +34,12 @@ module.exports = {
     }
   },
 
-  cancelBooking: async args => {
+  cancelBooking: async ({bookingId}, req) => {
+    authenticate(req);
     try {
-      const booking = await Booking.findById(args.bookingId).populate("event");
+      const booking = await Booking.findById(bookingId).populate("event");
       const event = transformEvent(booking.event);
-      await Booking.deleteOne({ _id: args.bookingId });
+      await Booking.deleteOne({ _id: bookingId });
       return event;
     } catch (error) {
       throw error;

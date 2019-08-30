@@ -1,7 +1,7 @@
 const Event = require("../../models/event");
 const User = require("../../models/user");
 
-const { transformEvent } = require('./merge');
+const { transformEvent, authenticate } = require('./merge');
 
 module.exports = {
   events: async () => {
@@ -12,20 +12,20 @@ module.exports = {
       throw error;
     }
   },
-  createEvent: async args => {
+  createEvent: async ({eventInput}, req) => { // req is the second argument which is added automatically
+    authenticate(req);
     try {
-      const data = args.eventInput;
       const event = new Event({
-        title: data.title,
-        description: data.description,
-        price: +data.price,
-        date: new Date(data.date),
-        creator: "5d67d7675b481280c82a1a81"
+        title: eventInput.title,
+        description: eventInput.description,
+        price: +eventInput.price,
+        date: new Date(eventInput.date),
+        creator: req.userId
       });
       let createdEvents;
       const result = await event.save();
       createdEvents = transformEvent(result);
-      const creator = await User.findById("5d67d7675b481280c82a1a81");
+      const creator = await User.findById(req.userId);
       if (!creator) {
         console.log(creator);
         throw new Error("User does not exists");
