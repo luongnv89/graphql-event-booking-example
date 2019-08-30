@@ -15,6 +15,11 @@
   font-size: 1.5rem;
 }
 
+.nav-item {
+  position: fixed;
+  right: 0px;
+}
+
 .nav-item ul {
   margin-left: 1.5rem;
 }
@@ -30,13 +35,20 @@
   margin: 0 1rem;
 }
 
-.nav-item a {
+.nav-item a,
+.nav-item button {
   text-decoration: none;
   color: #daa40e;
+  border: none;
+  font:inherit;
+  background: transparent;
+  cursor: pointer;
+  vertical-align: center;
 }
 
 .nav-item a:hover,
 .nav-item a:active,
-.nav-item a.active {
+.nav-item a.active,
+.nav-item button:hover {
   color: white;
 }
