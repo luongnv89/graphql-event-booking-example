@@ -1,0 +1,42 @@
+.main-nav {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 3.5rem;
+  background-color: #101010;
+  color: #daa40e;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+}
+.nav-logo h1{
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.nav-item ul {
+  margin-left: 1.5rem;
+}
+
+.nav-item ul{
+  display: flex;
+  margin: 0 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.nav-item li {
+  margin: 0 1rem;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: #daa40e;
+}
+
+.nav-item a:hover,
+.nav-item a:active,
+.nav-item a.active {
+  color: white;
+}
