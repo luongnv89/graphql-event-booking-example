@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 
+
+import BookingList from '../components/Bookings/BookingList/BookingList';
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
 
@@ -61,19 +63,55 @@ class BookingPage extends Component {
       });
   }
 
+  deleteBookingHandler  = bookingID => {
+    const requestBody = {
+      query: `
+        mutation {
+          cancelBooking(bookingId: "${bookingID}"){
+            _id
+            title
+            creator{
+              _id
+              email
+            }
+          }
+        }
+        `
+    };
+
+    fetch("http://localhost:4000/graphql", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.context.token}`
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error("Failed!");
+        }
+        return res.json();
+      })
+      .then(resData => {
+        this.setState(prevState => {
+          const newBookings = prevState.bookings.filter(booking => booking._id !== bookingID);
+          return {
+            bookings: newBookings
+          }
+        })
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   render() {
 
     return (
       <React.Fragment>
         {this.state.isLoading ? <Spinner /> : (
-          <ul>
-            {this.state.bookings.map(booking => (
-              <li key={booking._id}>
-                <h1>{booking.event.title} - {booking.event.creator.email}</h1>
-                <h2>{new Date(booking.createdAt).toLocaleDateString()}</h2>
-              </li>
-            ))}
-          </ul>
+          <BookingList bookings={this.state.bookings} onDelete={this.deleteBookingHandler}/>
         )}
       </React.Fragment>
     );

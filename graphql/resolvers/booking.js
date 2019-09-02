@@ -7,7 +7,7 @@ module.exports = {
   bookings: async (args, req) => {
     authenticate(req);
     try {
-      const bookings = await Booking.find();
+      const bookings = await Booking.find({user: req.userId});
       return bookings.map(booking => {
         return transformBooking(booking);
       });
