@@ -1,14 +1,17 @@
 import React, { Component } from "react";
 
-import BookingList from '../components/Bookings/BookingList/BookingList';
+import BookingList from "../components/Bookings/BookingList/BookingList";
+import BookingChart from "../components/Bookings/BookingChart/BookingChart";
+import BookingControls from "../components/Bookings/BookingControls/BookingControls";
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
 
 class BookingPage extends Component {
   state = {
     isLoading: false,
-    bookings: []
-  }
+    bookings: [],
+    outputType: "list"
+  };
 
   static contextType = AuthContext;
 
@@ -28,6 +31,7 @@ class BookingPage extends Component {
               event {
                 _id
                 title
+                price
                 creator{
                   _id
                   email
@@ -62,7 +66,7 @@ class BookingPage extends Component {
       });
   };
 
-  deleteBookingHandler = (bookingId) => {
+  deleteBookingHandler = bookingId => {
     const requestBody = {
       query: `
           mutation CancelBooking($id: ID!){
@@ -98,23 +102,44 @@ class BookingPage extends Component {
       .then(resData => {
         console.log(resData);
         this.setState(prevState => ({
-          bookings: prevState.bookings.filter(booking => booking._id !== bookingId)
-        }))
+          bookings: prevState.bookings.filter(
+            booking => booking._id !== bookingId
+          )
+        }));
       })
       .catch(err => {
         console.log(err);
       });
-  }
+  };
+
+  changeOutputType = type => {
+    if (type === "list") {
+      this.setState({ outputType: "list" });
+    } else {
+      this.setState({ outputType: "chart" });
+    }
+  };
 
   render() {
-
-    return (
-      <React.Fragment>
-        {this.state.isLoading ? <Spinner /> : (
-          <BookingList bookings={this.state.bookings} onDelete={this.deleteBookingHandler}/>
-        )}
-      </React.Fragment>
-    );
+    let content = <Spinner />;
+    if (!this.state.isLoading) {
+      content = (
+        <React.Fragment>
+          <BookingControls outputType={this.state.outputType} onChange={this.changeOutputType}/>
+          <div>
+            {this.state.outputType === "list" ? (
+              <BookingList
+                bookings={this.state.bookings}
+                onDelete={this.deleteBookingHandler}
+              />
+            ) : (
+              <BookingChart bookings={this.state.bookings} />
+            )}
+          </div>
+        </React.Fragment>
+      );
+    }
+    return <React.Fragment>{content}</React.Fragment>;
   }
 }
 
