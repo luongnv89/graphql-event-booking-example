@@ -19,6 +19,8 @@ class EventPage extends Component {
 
   static contextType = AuthContext;
 
+  isActive = true;
+
   constructor(props) {
     super(props);
     this.startCreateEventHandler = this.startCreateEventHandler.bind(this);
@@ -43,18 +45,18 @@ class EventPage extends Component {
 
   bookEventHandler = () => {
     if (!this.context.token) {
-      this.setState({ selectedEvent: null });
+      this.setState({selectedEvent: null});
       return;
     }
     const requestBody = {
       query: `
-          mutation {
-            bookEvent(eventId: "${this.state.selectedEvent._id}") {
-              _id
-              createdAt
-              updatedAt
+            mutation {
+              bookEvent (eventId: "${this.state.selectedEvent._id}"){
+                _id
+                createdAt
+                updatedAt
+              }
             }
-          }
         `
     };
 
@@ -73,10 +75,8 @@ class EventPage extends Component {
         return res.json();
       })
       .then(resData => {
-        console.log("Booking: ", resData);
-        this.setState({
-          selectedEvent: null
-        });
+        console.log(resData);
+        this.setState({selectedEvent: null});
       })
       .catch(err => {
         console.log(err);
@@ -98,8 +98,6 @@ class EventPage extends Component {
     ) {
       return;
     }
-    const event = { title, price, date, description };
-    console.log(event);
     const requestBody = {
       query: `
           mutation {
@@ -203,7 +201,7 @@ class EventPage extends Component {
       });
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(){
     this.isActive = false;
   }
 
