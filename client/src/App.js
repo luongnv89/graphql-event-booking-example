@@ -15,7 +15,20 @@ class App extends Component {
     userId: null
   }
 
+  componentDidMount = () => {
+    const token = sessionStorage.getItem('TOKEN');
+    const userId = sessionStorage.getItem('USERID');
+    if (token && userId) {
+      this.setState({
+        token,
+        userId
+      });
+    }
+  }
+
   login = (token, userId, tokenExpiration) => {
+    sessionStorage.setItem('TOKEN', token);
+    sessionStorage.setItem('USERID', userId);
     this.setState({
       token,
       userId
@@ -23,6 +36,8 @@ class App extends Component {
   }
 
   logout = () => {
+    sessionStorage.removeItem('TOKEN');
+    sessionStorage.removeItem('USERID');
     this.setState({
       token: null,
       userId: null
@@ -30,6 +45,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state);
     return (
     <BrowserRouter>
       <AuthContext.Provider value={{token: this.state.token, userId: this.state.userId, login: this.login, logout: this.logout}}>
