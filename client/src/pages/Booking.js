@@ -62,6 +62,47 @@ class BookingPage extends Component {
       });
   };
 
+  deleteBookingHandler = (bookingId) => {
+    const requestBody = {
+      query: `
+          mutation {
+            cancelBooking(bookingId: "${bookingId}") {
+              _id
+              title
+              creator{
+                _id
+                email
+              }
+            }
+          }
+        `
+    };
+
+    fetch("http://localhost:4000/graphql", {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.context.token}`
+      }
+    })
+      .then(res => {
+        if (res.status !== 200 && res.status !== 201) {
+          throw new Error("Failed!");
+        }
+        return res.json();
+      })
+      .then(resData => {
+        console.log(resData);
+        this.setState(prevState => ({
+          bookings: prevState.bookings.filter(booking => booking._id !== bookingId)
+        }))
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }
+
   render() {
 
     return (

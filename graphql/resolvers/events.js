@@ -6,7 +6,7 @@ const { transformEvent, authenticate } = require('./merge');
 module.exports = {
   events: async () => {
     try {
-      const events = await Event.find().populate("creator");
+      const events = await Event.find();
       return events.map(event => transformEvent(event));
     } catch (error) {
       throw error;
