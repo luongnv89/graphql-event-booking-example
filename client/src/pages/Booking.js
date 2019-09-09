@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import BookingList from "../components/Bookings/BookingList/BookingList";
 import BookingChart from "../components/Bookings/BookingChart/BookingChart";
@@ -6,21 +6,14 @@ import BookingControls from "../components/Bookings/BookingControls/BookingContr
 import AuthContext from "../context/auth-context";
 import Spinner from "../components/Spinner/Spinner";
 
-class BookingPage extends Component {
-  state = {
-    isLoading: false,
-    bookings: [],
-    outputType: "list"
-  };
+const BookingPage = props => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [outputType, setOutputType] = useState("list");
 
-  static contextType = AuthContext;
+  const context = useContext(AuthContext);
 
-  componentDidMount() {
-    this.fetchBooking();
-  }
-
-  fetchBooking = () => {
-    this.setState({ isLoading: true });
+  useEffect(() => {
     const requestBody = {
       query: `
           query {
@@ -41,13 +34,13 @@ class BookingPage extends Component {
           }
         `
     };
-
+    setIsLoading(true);
     fetch("http://localhost:4000/graphql", {
       method: "POST",
       body: JSON.stringify(requestBody),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.context.token}`
+        Authorization: `Bearer ${context.token}`
       }
     })
       .then(res => {
@@ -58,15 +51,16 @@ class BookingPage extends Component {
       })
       .then(resData => {
         const { bookings } = resData.data;
-        this.setState({ bookings, isLoading: false });
+        setBookings(bookings);
+        setIsLoading(false);
       })
       .catch(err => {
         console.log(err);
-        this.setState({ isLoading: false });
+        setIsLoading(false);
       });
-  };
+  }, []);
 
-  deleteBookingHandler = bookingId => {
+  const deleteBookingHandler = bookingId => {
     const requestBody = {
       query: `
           mutation CancelBooking($id: ID!){
@@ -90,7 +84,7 @@ class BookingPage extends Component {
       body: JSON.stringify(requestBody),
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.context.token}`
+        Authorization: `Bearer ${context.token}`
       }
     })
       .then(res => {
@@ -101,46 +95,37 @@ class BookingPage extends Component {
       })
       .then(resData => {
         console.log(resData);
-        this.setState(prevState => ({
-          bookings: prevState.bookings.filter(
-            booking => booking._id !== bookingId
-          )
-        }));
+        setBookings(bookings.filter(booking => booking._id !== bookingId));
       })
       .catch(err => {
         console.log(err);
       });
   };
 
-  changeOutputType = type => {
+  const changeOutputType = type => {
     if (type === "list") {
-      this.setState({ outputType: "list" });
+      setOutputType("list");
     } else {
-      this.setState({ outputType: "chart" });
+      setOutputType("chart");
     }
   };
 
-  render() {
-    let content = <Spinner />;
-    if (!this.state.isLoading) {
-      content = (
-        <React.Fragment>
-          <BookingControls outputType={this.state.outputType} onChange={this.changeOutputType}/>
-          <div>
-            {this.state.outputType === "list" ? (
-              <BookingList
-                bookings={this.state.bookings}
-                onDelete={this.deleteBookingHandler}
-              />
-            ) : (
-              <BookingChart bookings={this.state.bookings} />
-            )}
-          </div>
-        </React.Fragment>
-      );
-    }
-    return <React.Fragment>{content}</React.Fragment>;
+  let content = <Spinner />;
+  if (!isLoading) {
+    content = (
+      <React.Fragment>
+        <BookingControls outputType={outputType} onChange={changeOutputType} />
+        <div>
+          {outputType === "list" ? (
+            <BookingList bookings={bookings} onDelete={deleteBookingHandler} />
+          ) : (
+            <BookingChart bookings={bookings} />
+          )}
+        </div>
+      </React.Fragment>
+    );
   }
-}
+  return <React.Fragment>{content}</React.Fragment>;
+};
 
 export default BookingPage;
