@@ -132,6 +132,7 @@ const EventPage = props => {
       date.trim().length === 0 ||
       description.trim().length === 0
     ) {
+      console.error('Invalid data');
       return;
     }
     const requestBody = {
@@ -174,7 +175,8 @@ const EventPage = props => {
       })
       .then(resData => {
         setCreating(false);
-        setEvents(events.push(resData.data.createEvent));
+        events.push(resData.data.createEvent);
+        setEvents(events);
       })
       .catch(err => {
         console.log(err);
