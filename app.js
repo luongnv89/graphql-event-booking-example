@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const graphqlHttp = require("express-graphql");
 const mongoose = require("mongoose");
+require('dotenv').config();
 
 const mySchemas = require("./graphql/schema");
 const myResolvers = require("./graphql/resolvers");
